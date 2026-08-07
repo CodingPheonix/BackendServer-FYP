@@ -1,21 +1,36 @@
 {
-  "name": "BackendServer-FYP",
+  "name": "backendserver-fyp",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
-  "type": "module",
+  "main": "index.js",
   "scripts": {
-    "start": "npx tsx --env-file=.env --watch  src/server.ts"
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodingPheonix/BackendServer-FYP.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.32.1",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/CodingPheonix/BackendServer-FYP/issues"
+  },
+  "homepage": "https://github.com/CodingPheonix/BackendServer-FYP#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^9.9.1",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^26.1.2"
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.10",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   }
 }
