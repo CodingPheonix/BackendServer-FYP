@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { fertilizerService } from '../service/FertilizerService.js';
+import { IFertilizer } from '../model/Fertilizer.js';
 
 const router = Router();
 
 // 1. Bulk data intake
 router.post('/bulk', async (req, res) => {
   try {
-    const fertilizers = req.body;
+    const fertilizers: Partial<IFertilizer>[] = req.body;
     if (!Array.isArray(fertilizers)) {
       res.status(400).json({ error: 'Expected an array of fertilizers' });
       return;
@@ -23,7 +24,7 @@ router.post('/bulk', async (req, res) => {
 router.patch('/:id/image', async (req, res) => {
   try {
     const { id } = req.params;
-    const { imageUrl } = req.body;
+    const { imageUrl } = req.body as { imageUrl: string };
 
     if (!imageUrl) {
       res.status(400).json({ error: 'imageUrl is required' });
