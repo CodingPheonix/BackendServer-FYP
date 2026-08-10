@@ -20,7 +20,7 @@ export class FertilizerRepository {
   }
 
   async updateById(id: string, data: Partial<IFertilizer>): Promise<IFertilizer | null> {
-    return await Fertilizer.findByIdAndUpdate(id, data, { new: true });
+    return await Fertilizer.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }
 
   async deleteById(id: string): Promise<IFertilizer | null> {
