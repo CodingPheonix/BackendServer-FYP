@@ -2,8 +2,8 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import { connectDB, closeDB, clearDB } from '../db.js';
-import fertilizerRoutes from '../../src/router/fertilizerRoutes.js';
-import { IFertilizer } from '../../src/model/Fertilizer.js';
+import fertilizerRoutes from '../../router/fertilizerRoutes.js';
+import { IFertilizer } from '../../model/Fertilizer.js';
 
 const app = express();
 app.use(express.json());
@@ -46,25 +46,25 @@ describe('Fertilizer Routes', () => {
     const res = await request(app)
       .post('/api/fertilizers/bulk')
       .send([sampleData]);
-      
+
     expect(res.status).toBe(201);
     expect(res.body.count).toBe(1);
     expect(res.body.data[0].basicInfo.image).toBe('dummy_string');
   });
-  
+
   it('PATCH /api/fertilizers/:id/image should add image', async () => {
     // First insert one
     const insertRes = await request(app)
       .post('/api/fertilizers/bulk')
       .send([sampleData]);
-      
+
     const id = insertRes.body.data[0]._id;
-    
+
     // Then patch it
     const patchRes = await request(app)
       .patch(`/api/fertilizers/${id}/image`)
       .send({ imageUrl: 'https://example.com/test-image.png' });
-      
+
     expect(patchRes.status).toBe(200);
     expect(patchRes.body.data.basicInfo.image).toBe('https://example.com/test-image.png');
   });
@@ -73,7 +73,7 @@ describe('Fertilizer Routes', () => {
     const res = await request(app)
       .patch('/api/fertilizers/507f1f77bcf86cd799439011/image')
       .send({});
-      
+
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('imageUrl is required');
   });
@@ -82,7 +82,7 @@ describe('Fertilizer Routes', () => {
     const res = await request(app)
       .patch('/api/fertilizers/507f1f77bcf86cd799439011/image')
       .send({ imageUrl: 'https://example.com' });
-      
+
     expect(res.status).toBe(404);
     expect(res.body.error).toBe('Fertilizer not found');
   });

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { connectDB, closeDB, clearDB } from '../db.js';
-import { fertilizerService } from '../../src/service/FertilizerService.js';
-import { IFertilizer } from '../../src/model/Fertilizer.js';
+import { fertilizerService } from '../../service/FertilizerService.js';
+import { IFertilizer } from '../../model/Fertilizer.js';
 
 beforeAll(async () => await connectDB());
 afterEach(async () => await clearDB());
