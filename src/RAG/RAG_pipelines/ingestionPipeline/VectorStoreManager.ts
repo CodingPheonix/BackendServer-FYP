@@ -1,14 +1,14 @@
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { Document } from "@langchain/core/documents";
-import { getRAGCollection } from "../../utils/database.js";
+import { getRAGCollection } from "../../../utils/database.js";
 
 export class VectorStoreManager {
     private embeddings: GoogleGenerativeAIEmbeddings;
 
     constructor() {
         this.embeddings = new GoogleGenerativeAIEmbeddings({
-            model: "text-embedding-004", 
+            model: "text-embedding-004",
         });
     }
 
@@ -20,7 +20,7 @@ export class VectorStoreManager {
 
         const vectorStore = new MongoDBAtlasVectorSearch(this.embeddings, {
             collection: collection as any,
-            indexName: "vector_index", 
+            indexName: "vector_index",
             textKey: "text",
             embeddingKey: "embedding",
         });
