@@ -20,7 +20,7 @@ export class SessionRepository {
         return await Session.findByIdAndUpdate(id, data, { returnDocument: 'after' });
     }
 
-    async updateBySessionAndUserId(userId: string, sessionId: string, data: Partial<ISession>): Promise<ISession | null> {
+    async updateBySessionAndUserId(userId: string, sessionId: string, data: mongoose.UpdateQuery<ISession>): Promise<ISession | null> {
         data.lastActivityAt = new Date();
         return await Session.findOneAndUpdate({ userId, sessionId }, data, { returnDocument: 'after' });
     }

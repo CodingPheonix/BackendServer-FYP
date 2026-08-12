@@ -18,8 +18,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  // Drop the test database and close connection
-  await mongoose.connection.db?.dropDatabase();
+  // await mongoose.connection.db?.dropDatabase();
   await mongoose.connection.close();
 });
 
