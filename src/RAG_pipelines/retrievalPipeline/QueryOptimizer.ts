@@ -15,15 +15,18 @@ export class QueryOptimizer {
         const structuredLlm = llm.withStructuredOutput(OptimizerOutputSchema);
 
         const prompt = PromptTemplate.fromTemplate(`
-You are an expert agriculture retrieval optimizer.
-The user is asking a query about plant diseases or fertilizers.
-Your job is to optimize the query by deciding whether the query has a single answerable meaning or multiple. 
-If it has multiple meanings that should be searched separately (e.g., "what is this disease and how can i cure it"), break it down into multiple meaningful queries.
-Do NOT break down queries if they mean the same thing (e.g., "what is this disease" and "what can i know about this disease" should be ONE query).
-Also, determine the destination for each query: "fertilizer" or "disease".
+            You are an expert agriculture retrieval optimizer.
+            The user is asking a query about plant diseases or fertilizers.
+            Your job is to optimize the query by deciding whether the query has a single answerable meaning or multiple. 
+            If it has multiple meanings that should be searched separately (e.g., "what is this disease and how can i cure it"), break it down into multiple meaningful queries.
+            Do NOT break down queries if they mean the same thing (e.g., "what is this disease" and "what can i know about this disease" should be ONE query).
+            Also, determine the destination for each query: "fertilizer" or "disease".
 
-User Query: {query}
-`);
+            IMPORTANT: You MUST ALWAYS return at least one query in your response. 
+            If the query is completely unrelated to agriculture, cannot be broken down, or is a general question, return the original user query as-is and default the destination to "disease".
+
+            User Query: {query}
+        `);
 
         const optimizerChain = prompt.pipe(structuredLlm);
         const result = await optimizerChain.invoke({ query });

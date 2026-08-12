@@ -25,8 +25,7 @@ export const createRoundRobinTextModel = (options?: any) => {
 
 export const createRoundRobinEmbeddingModel = (options?: any) => {
     const models = [
-        process.env.GOOGLE_EMBEDDING_MODEL1,
-        process.env.GOOGLE_EMBEDDING_MODEL2
+        process.env.GOOGLE_EMBEDDING_MODEL1
     ].filter(Boolean) as string[];
 
     if (models.length === 0) {

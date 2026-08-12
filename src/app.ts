@@ -9,6 +9,11 @@ import { connectDatabase, connectRAGDatabase } from "./utils/database.js";
 const app = express();
 
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.send("hello world");
+})
+
 app.use("/api/fertilizers", fertilizerRoutes);
 app.use("/api/ingest", ingestionRouter);
 app.use("/api/retrieve", retrievalRouter);
