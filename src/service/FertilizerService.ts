@@ -1,5 +1,6 @@
 import { fertilizerRepository } from '../repository/FertilizerRepository.js';
 import { IFertilizer } from '../model/Fertilizer.js';
+import mongoose from 'mongoose';
 
 export class FertilizerService {
   async bulkIntake(fertilizers: Partial<IFertilizer>[]) {
@@ -40,7 +41,7 @@ export class FertilizerService {
     return await fertilizerRepository.findAll();
   }
 
-  async updateFertilizer(id: string, data: Partial<IFertilizer>) {
+  async updateFertilizer(id: string, data: mongoose.UpdateQuery<IFertilizer>) {
     return await fertilizerRepository.updateById(id, data);
   }
 

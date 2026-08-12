@@ -18,12 +18,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  // We don't want to drop the database because other concurrent tests might be using it.
-  // We'll just close the connection. Wait, the CropRepository drops it. Let's not drop it here to avoid flakiness, or we just stick to CropRepository pattern. 
-  // Actually, deleteMany is enough to clean up the collection.
-  // We will drop database if it's the last test running, but we can't guarantee that. 
-  // For safety, we won't drop the whole DB here.
-  // await mongoose.connection.db?.dropDatabase();
+  await mongoose.connection.db?.dropDatabase();
   await mongoose.connection.close();
 });
 
