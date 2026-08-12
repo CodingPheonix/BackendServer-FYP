@@ -1,4 +1,5 @@
 import { Fertilizer, IFertilizer } from '../model/Fertilizer.js';
+import mongoose from 'mongoose';
 
 export class FertilizerRepository {
   async create(data: Partial<IFertilizer>): Promise<IFertilizer> {
@@ -19,7 +20,7 @@ export class FertilizerRepository {
     return await Fertilizer.find();
   }
 
-  async updateById(id: string, data: Partial<IFertilizer>): Promise<IFertilizer | null> {
+  async updateById(id: string, data: mongoose.UpdateQuery<IFertilizer>): Promise<IFertilizer | null> {
     return await Fertilizer.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }
 

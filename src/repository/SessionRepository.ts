@@ -1,4 +1,5 @@
 import { Session, ISession } from '../model/Session.js';
+import mongoose from 'mongoose';
 
 export class SessionRepository {
     async create(data: Partial<ISession>): Promise<ISession> {
@@ -14,7 +15,7 @@ export class SessionRepository {
         return await Session.findOne({ userId, sessionId });
     }
 
-    async updateById(id: string, data: Partial<ISession>): Promise<ISession | null> {
+    async updateById(id: string, data: mongoose.UpdateQuery<ISession>): Promise<ISession | null> {
         data.lastActivityAt = new Date();
         return await Session.findByIdAndUpdate(id, data, { returnDocument: 'after' });
     }

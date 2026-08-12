@@ -1,4 +1,5 @@
 import { Disease, IDisease } from '../model/Disease.js';
+import mongoose from 'mongoose';
 
 export class DiseaseRepository {
   async create(data: Partial<IDisease>): Promise<IDisease> {
@@ -22,7 +23,7 @@ export class DiseaseRepository {
     return await Disease.find({ cropId });
   }
 
-  async updateById(id: string, data: Partial<IDisease>): Promise<IDisease | null> {
+  async updateById(id: string, data: mongoose.UpdateQuery<IDisease>): Promise<IDisease | null> {
     return await Disease.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }
 

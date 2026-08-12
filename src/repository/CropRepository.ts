@@ -1,4 +1,5 @@
 import { Crop, ICrop } from '../model/Crop.js';
+import mongoose from 'mongoose';
 
 export class CropRepository {
   async create(data: Partial<ICrop>): Promise<ICrop> {
@@ -18,7 +19,7 @@ export class CropRepository {
     return await Crop.find();
   }
 
-  async updateById(id: string, data: Partial<ICrop>): Promise<ICrop | null> {
+  async updateById(id: string, data: mongoose.UpdateQuery<ICrop>): Promise<ICrop | null> {
     return await Crop.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }
 
