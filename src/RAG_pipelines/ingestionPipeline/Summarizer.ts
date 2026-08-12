@@ -1,15 +1,10 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
+import { createRoundRobinTextModel } from "../../utils/modelSelector.js";
 
 export class Summarizer {
-    private summarizeChain: any;
-
-    constructor() {
-        const llm = new ChatGoogleGenerativeAI({
-            model: "gemini-3.1-flash-lite",
-            maxOutputTokens: 512,
-        });
+    async summarizePage(pageContent: string): Promise<string> {
+        const llm = createRoundRobinTextModel({ maxOutputTokens: 512 });
 
         const summarizePrompt = PromptTemplate.fromTemplate(`
 You are an expert agriculture assistant. Summarize the following document page.
@@ -22,11 +17,9 @@ Page Content:
 Summary:
 `);
 
-        this.summarizeChain = summarizePrompt.pipe(llm).pipe(new StringOutputParser());
-    }
+        const summarizeChain = summarizePrompt.pipe(llm).pipe(new StringOutputParser());
 
-    async summarizePage(pageContent: string): Promise<string> {
-        return await this.summarizeChain.invoke({
+        return await summarizeChain.invoke({
             page_content: pageContent,
         });
     }

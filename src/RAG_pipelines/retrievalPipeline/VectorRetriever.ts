@@ -1,20 +1,13 @@
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { getRAGCollection } from "../../utils/database.js";
+import { createRoundRobinEmbeddingModel } from "../../utils/modelSelector.js";
 
 export class VectorRetriever {
-    private embeddings: GoogleGenerativeAIEmbeddings;
-
-    constructor() {
-        this.embeddings = new GoogleGenerativeAIEmbeddings({
-            model: "text-embedding-004", 
-        });
-    }
-
     private async searchInCollection(query: string, collectionName: string, k: number = 3): Promise<string[]> {
         const collection = getRAGCollection(collectionName);
+        const embeddings = createRoundRobinEmbeddingModel();
         
-        const vectorStore = new MongoDBAtlasVectorSearch(this.embeddings, {
+        const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
             collection: collection as any,
             indexName: "vector_index", 
             textKey: "text",

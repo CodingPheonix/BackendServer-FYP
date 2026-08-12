@@ -1,15 +1,14 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
+import { createRoundRobinTextModel } from "../../utils/modelSelector.js";
 
 export class ContextCompressor {
-    private compressChain: any;
+    async compress(queries: string[], rawContexts: string[]): Promise<string> {
+        if (rawContexts.length === 0) {
+            return "No relevant context found.";
+        }
 
-    constructor() {
-        const llm = new ChatGoogleGenerativeAI({
-            model: "gemini-1.5-flash", 
-            maxOutputTokens: 1024,
-        });
+        const llm = createRoundRobinTextModel({ maxOutputTokens: 1024 });
 
         const compressPrompt = PromptTemplate.fromTemplate(`
 You are an expert agricultural assistant.
@@ -26,18 +25,12 @@ Raw Contexts:
 Compressed High-Value Context:
 `);
 
-        this.compressChain = compressPrompt.pipe(llm).pipe(new StringOutputParser());
-    }
-
-    async compress(queries: string[], rawContexts: string[]): Promise<string> {
-        if (rawContexts.length === 0) {
-            return "No relevant context found.";
-        }
+        const compressChain = compressPrompt.pipe(llm).pipe(new StringOutputParser());
 
         const combinedQueries = queries.join("\n- ");
         const combinedContexts = rawContexts.join("\n\n---\n\n");
 
-        return await this.compressChain.invoke({
+        return await compressChain.invoke({
             queries: combinedQueries,
             contexts: combinedContexts
         });

@@ -1,6 +1,6 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { z } from "zod";
 import { PromptTemplate } from "@langchain/core/prompts";
+import { createRoundRobinTextModel } from "../../utils/modelSelector.js";
 
 const OptimizerOutputSchema = z.object({
     queries: z.array(z.object({
@@ -10,14 +10,8 @@ const OptimizerOutputSchema = z.object({
 });
 
 export class QueryOptimizer {
-    private optimizerChain: any;
-
-    constructor() {
-        const llm = new ChatGoogleGenerativeAI({
-            model: "gemini-1.5-flash", 
-            maxOutputTokens: 512,
-        });
-
+    async optimize(query: string): Promise<{ query: string, destination: "fertilizer" | "disease" }[]> {
+        const llm = createRoundRobinTextModel({ maxOutputTokens: 512 });
         const structuredLlm = llm.withStructuredOutput(OptimizerOutputSchema);
 
         const prompt = PromptTemplate.fromTemplate(`
@@ -31,11 +25,8 @@ Also, determine the destination for each query: "fertilizer" or "disease".
 User Query: {query}
 `);
 
-        this.optimizerChain = prompt.pipe(structuredLlm);
-    }
-
-    async optimize(query: string): Promise<{ query: string, destination: "fertilizer" | "disease" }[]> {
-        const result = await this.optimizerChain.invoke({ query });
+        const optimizerChain = prompt.pipe(structuredLlm);
+        const result = await optimizerChain.invoke({ query });
         return result.queries;
     }
 }
