@@ -1,0 +1,34 @@
+import { Disease, IDisease } from '../model/Disease.js';
+
+export class DiseaseRepository {
+  async create(data: Partial<IDisease>): Promise<IDisease> {
+    const disease = new Disease(data);
+    return await disease.save();
+  }
+
+  async insertMany(data: Partial<IDisease>[]): Promise<IDisease[]> {
+    return await Disease.insertMany(data) as unknown as IDisease[];
+  }
+
+  async findById(id: string): Promise<IDisease | null> {
+    return await Disease.findById(id);
+  }
+
+  async findAll(): Promise<IDisease[]> {
+    return await Disease.find();
+  }
+
+  async findByCropId(cropId: string): Promise<IDisease[]> {
+    return await Disease.find({ cropId });
+  }
+
+  async updateById(id: string, data: Partial<IDisease>): Promise<IDisease | null> {
+    return await Disease.findByIdAndUpdate(id, data, { returnDocument: 'after' });
+  }
+
+  async deleteById(id: string): Promise<IDisease | null> {
+    return await Disease.findByIdAndDelete(id);
+  }
+}
+
+export const diseaseRepository = new DiseaseRepository();
