@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import fertilizerRoutes from "./router/fertilizerRoutes.js";
 import ingestionRouter from "./router/ingestionRouter.js";
+import retrievalRouter from "./router/retrievalRouter.js";
 import { connectDatabase, connectRAGDatabase } from "./utils/database.js";
 
 const app = express();
@@ -10,6 +11,7 @@ const app = express();
 app.use(express.json());
 app.use("/api/fertilizers", fertilizerRoutes);
 app.use("/api/ingest", ingestionRouter);
+app.use("/api/retrieve", retrievalRouter);
 
 connectDatabase();
 connectRAGDatabase();

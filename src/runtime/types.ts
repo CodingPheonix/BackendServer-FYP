@@ -20,7 +20,7 @@ export interface LeafDiseaseRuntime {
 
   // Cached RAG result
   rag?: {
-    query: string;
+    queries: string[];
     context: string;
     retrievedAt: Date;
   };

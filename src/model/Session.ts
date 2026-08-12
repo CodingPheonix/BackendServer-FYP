@@ -23,7 +23,7 @@ const SessionSchema: Schema = new Schema({
     },
     
     rag: {
-        query: { type: String },
+        queries: [{ type: String }],
         context: { type: String },
         retrievedAt: { type: Date }
     },
