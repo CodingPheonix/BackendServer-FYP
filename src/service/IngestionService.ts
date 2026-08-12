@@ -1,7 +1,7 @@
 import { Document } from "@langchain/core/documents";
-import { DocumentParser } from "../RAG/RAG_pipelines/ingestionPipeline/DocumentParser.js";
-import { Summarizer } from "../RAG/RAG_pipelines/ingestionPipeline/Summarizer.js";
-import { VectorStoreManager } from "../RAG/RAG_pipelines/ingestionPipeline/VectorStoreManager.js";
+import { DocumentParser } from "../RAG_pipelines/ingestionPipeline/DocumentParser.js";
+import { Summarizer } from "../RAG_pipelines/ingestionPipeline/Summarizer.js";
+import { VectorStoreManager } from "../RAG_pipelines/ingestionPipeline/VectorStoreManager.js";
 import fs from "fs";
 
 export class IngestionService {

@@ -1,7 +1,7 @@
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { Document } from "@langchain/core/documents";
-import { getRAGCollection } from "../../../utils/database.js";
+import { getRAGCollection } from "../../utils/database.js";
 
 export class VectorStoreManager {
     private embeddings: GoogleGenerativeAIEmbeddings;
