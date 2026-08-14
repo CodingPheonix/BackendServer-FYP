@@ -5,6 +5,7 @@ import { registerLiveApiEvents } from "../socket/liveApiSocket.js";
 import { geminiTools, handleToolCall } from "./tools.js";
 import { Runtime } from "../runtime/Runtime.js";
 import { runtimeService } from "../service/runtimeService.js";
+import { systemPrompt } from "./prompt.js";
 
 export class LiveAPIController {
     private ai: GoogleGenAI;
@@ -106,6 +107,9 @@ export class LiveAPIController {
                     endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
                     prefixPaddingMs: 20,
                     silenceDurationMs: 100,
+                },
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
                 },
                 tools: geminiTools
             };
