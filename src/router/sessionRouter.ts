@@ -9,6 +9,7 @@ const router = Router();
 router.post('/init', async (req, res) => {
     try {
         const { userId, sessionId } = req.body;
+        console.log(userId, sessionId);
 
         if (!userId || !sessionId) {
             res.status(400).json({ error: 'userId and sessionId are required' });

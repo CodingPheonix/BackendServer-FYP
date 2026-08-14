@@ -18,13 +18,13 @@ app.use(cors({
 app.use(express.json());
 
 // Gracefully handle malformed JSON requests
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (err instanceof SyntaxError && 'body' in err) {
-        res.status(400).json({ error: 'Malformed JSON payload received.' });
-        return;
-    }
-    next(err);
-});
+// app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+//     if (err instanceof SyntaxError && 'body' in err) {
+//         res.status(400).json({ error: 'Malformed JSON payload received.' });
+//         return;
+//     }
+//     next(err);
+// });
 
 app.get('/', (req, res) => {
     res.send("hello world");
