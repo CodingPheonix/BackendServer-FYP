@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import { Socket } from "socket.io";
 import { GoogleGenAI, Modality } from "@google/genai";
-import 'dotenv/config';
 import { registerLiveApiEvents } from "../socket/liveApiSocket.js";
 import { geminiTools, handleToolCall } from "./tools.js";
+import { Runtime } from "../runtime/Runtime.js";
+import { runtimeService } from "../service/runtimeService.js";
 
 export class LiveAPIController {
     private ai: GoogleGenAI;
@@ -72,15 +74,24 @@ export class LiveAPIController {
 
     private async initLiveClient() {
         try {
+            const runtime = await Runtime.getInstance(this.userId, this.sessionId);
+            const previousSessionHandle = runtime.conversation?.handle;
+
+            const config: any = {
+                contextWindowCompression: {
+                    slidingWindow: {}
+                },
+                responseModalities: [Modality.AUDIO],
+                tools: geminiTools
+            };
+
+            if (previousSessionHandle) {
+                config.sessionResumption = { handle: previousSessionHandle };
+            }
+
             this.session = await this.ai.live.connect({
                 model: process.env.GOOGLE_LIVE_API as string,
-                config: {
-                    contextWindowCompression: {
-                        slidingWindow: {}
-                    },
-                    responseModalities: [Modality.AUDIO],
-                    tools: geminiTools
-                },
+                config: config,
                 callbacks: {
                     onopen: function () {
                         console.debug('Opened');
@@ -136,6 +147,25 @@ export class LiveAPIController {
             if (message.turn && message.turn.goAway) {
                 console.debug('GoAway received. Time left:', message.turn.goAway.timeLeft);
                 this.socket.emit('session_warning', `Session closing soon. Time left: ${message.turn.goAway.timeLeft}`);
+            }
+
+            // Update session handle in runtime and DB if provided by the model
+            if (message.sessionResumptionUpdate && message.sessionResumptionUpdate.resumable && message.sessionResumptionUpdate.newHandle) {
+                const newHandle = message.sessionResumptionUpdate.newHandle;
+                (async () => {
+                    try {
+                        const runtime = await Runtime.getInstance(this.userId, this.sessionId);
+                        // update current runtime
+                        runtime.conversation.handle = newHandle;
+                        // update data in database
+                        await runtimeService.updateSession(this.userId, this.sessionId, {
+                            conversation: { handle: newHandle }
+                        });
+                        console.debug(`Live API handle updated in runtime and DB to: ${newHandle}`);
+                    } catch (error) {
+                        console.error('Failed to update session handle in runtime/DB', error);
+                    }
+                })();
             }
         } catch (err) {
             console.error("Live API receive error:", err);
