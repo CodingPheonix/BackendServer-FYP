@@ -77,6 +77,16 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
         let result: any = {};
 
         try {
+            let taskText = `Executing ${name}`;
+            if (name === "fetch_rag_details") taskText = "Fetching context";
+            else if (name === "fetch_plant_details") taskText = "Gathering plant details";
+            else if (name === "fetch_plant_disease") taskText = "Checking diseases";
+            else if (name === "fetch_userId_sessionId") taskText = "Gathering credentials";
+            else if (name === "perform_rag_search") taskText = "Initiating search";
+
+            // send info to client
+            controller.emitTaskUpdate(taskText);
+
             switch (name) {
                 case "fetch_rag_details": {
                     const runtime = await Runtime.getInstance(userId, sessionId);
@@ -108,10 +118,10 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
                         (async () => {
                             try {
                                 await retrievalService.processRetrieval(userId, sessionId, query);
-                                
+
                                 // Fetch updated runtime to ensure in-memory state is aligned
                                 await Runtime.getInstance(userId, sessionId);
-                                
+
                                 // Trigger the text input to the model to act as a signal
                                 controller.sendTextInput(`[SYSTEM EVENT]: Background RAG retrieval is complete for the query "${query}". Please check the recent question asked in the conversation and the newly updated RAG context to provide your answer.`);
                             } catch (err) {

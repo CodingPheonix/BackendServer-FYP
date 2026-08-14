@@ -63,6 +63,10 @@ export class LiveAPIController {
         }
     }
 
+    public emitTaskUpdate(task: string) {
+        this.socket.emit('task_update', { category: "tool", task });
+    }
+
     async connect() {
         try {
             registerLiveApiEvents(this.socket, this);
