@@ -17,6 +17,7 @@ router.post('/init', async (req, res) => {
 
         // getInstance loads from DB via loadSession and caches in memory
         const runtime = await Runtime.getInstance(userId, sessionId);
+        console.log("Runtime after init:", runtime);
         res.status(200).json({ message: 'Session initialized', data: runtime });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -27,15 +28,26 @@ router.post('/init', async (req, res) => {
 // Creates a new session with initialData
 router.post('/start', async (req, res) => {
     try {
-        const { userId, sessionId, initialData } = req.body;
+        const { userId, sessionId, initialData } = req.body as {
+            userId: string;
+            sessionId: string;
+            initialData: {
+                plantName: string;
+                diseaseName?: string;
+            };
+        };
 
-        if (!userId || !sessionId || !initialData) {
-            res.status(400).json({ error: 'userId, sessionId, and initialData are required' });
+        if (!userId || !sessionId || !initialData || !initialData.plantName) {
+            res.status(400).json({ error: 'userId, sessionId, and initialData.plantName are required' });
             return;
         }
 
-        // Start session in DB
-        await runtimeService.startSession(userId, sessionId, initialData);
+        await runtimeService.startSessionWithNames(
+            userId,
+            sessionId,
+            initialData.plantName,
+            initialData?.diseaseName
+        );
 
         // Load into memory
         await Runtime.getInstance(userId, sessionId);

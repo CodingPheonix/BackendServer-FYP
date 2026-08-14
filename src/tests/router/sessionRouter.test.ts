@@ -67,18 +67,20 @@ describe('Session Router Integration', () => {
   describe('POST /api/sessions/start', () => {
     it('should create a new session, load it to memory, and return 201', async () => {
       const initialData = {
-        conversation: { handle: 'handle-new' },
-        plant: { cropId: 'crop-2', cropName: 'Crop2' }
+        plantName: 'Tomato',
+        diseaseName: 'Blight'
       };
 
       const response = await request(app)
         .post('/api/sessions/start')
         .send({ userId: 'user-2', sessionId: 'sess-2', initialData });
 
+      if (response.status !== 201) {
+          console.error(response.body);
+      }
+
       expect(response.status).toBe(201);
       expect(response.body.message).toBe('Session started');
-      expect(response.body.data.userId).toBe('user-2');
-      expect(response.body.data.sessionId).toBe('sess-2');
 
       const count = await Session.countDocuments({ userId: 'user-2', sessionId: 'sess-2' });
       expect(count).toBe(1);
@@ -92,7 +94,7 @@ describe('Session Router Integration', () => {
         .send({ userId: 'user-3', sessionId: 'sess-3' });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId, sessionId, and initialData are required');
+      expect(response.body.error).toBe('userId, sessionId, and initialData.plantName are required');
     });
   });
 

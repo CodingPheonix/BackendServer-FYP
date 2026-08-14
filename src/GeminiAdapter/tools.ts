@@ -87,6 +87,9 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
             // send info to client
             controller.emitTaskUpdate(taskText);
 
+            const runtime = await Runtime.getInstance(userId, sessionId);
+            console.log(`[Tool Call: ${name}] Current Runtime:`, runtime);
+
             switch (name) {
                 case "fetch_rag_details": {
                     const runtime = await Runtime.getInstance(userId, sessionId);

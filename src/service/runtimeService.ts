@@ -1,5 +1,7 @@
 import { sessionRepository } from '../repository/SessionRepository.js';
 import { ISession } from '../model/Session.js';
+import { Crop } from '../model/Crop.js';
+import { Disease } from '../model/Disease.js';
 
 export class RuntimeService {
     /**
@@ -7,6 +9,34 @@ export class RuntimeService {
      */
     async loadSession(userId: string, sessionId: string): Promise<ISession | null> {
         return await sessionRepository.findByUserIdAndSessionId(userId, sessionId);
+    }
+
+    /**
+     * Starts a new session by resolving crop and disease names to their IDs.
+     */
+    async startSessionWithNames(userId: string, sessionId: string, plantName: string, diseaseName?: string): Promise<ISession> {
+        const crop = await Crop.findOne({ name: plantName });
+        const cropId = crop ? crop._id.toString() : 'unknown';
+        
+        let diseaseId;
+        if (diseaseName) {
+            const disease = await Disease.findOne({ name: diseaseName });
+            if (disease) {
+                diseaseId = disease._id.toString();
+            }
+        }
+
+        const sessionInitialData = {
+            conversation: { handle: 'uninitialized' },
+            plant: {
+                cropId,
+                cropName: plantName,
+                ...(diseaseId ? { diseaseId } : {}),
+                ...(diseaseName ? { diseaseName } : {})
+            }
+        };
+
+        return await this.startSession(userId, sessionId, sessionInitialData);
     }
 
     /**
