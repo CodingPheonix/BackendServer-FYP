@@ -13,7 +13,7 @@ export class VectorStoreManager {
 
         const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
             collection: collection as any,
-            indexName: "vector_index", 
+            indexName: "vector_index",
             textKey: "text",
             embeddingKey: "embedding",
         });

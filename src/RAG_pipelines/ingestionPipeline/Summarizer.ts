@@ -7,15 +7,15 @@ export class Summarizer {
         const llm = createRoundRobinTextModel({ maxOutputTokens: 512 });
 
         const summarizePrompt = PromptTemplate.fromTemplate(`
-You are an expert agriculture assistant. Summarize the following document page.
-Extract the most important keywords, concepts, and meaningful relevant words for retrieval.
-Make the summary concise but highly descriptive of the page's core content.
+            You are an expert agriculture assistant. Summarize the following document page.
+            Extract the most important keywords, concepts, and meaningful relevant words for retrieval.
+            Make the summary concise but highly descriptive of the page's core content.
 
-Page Content:
-{page_content}
+            Page Content:
+            {page_content}
 
-Summary:
-`);
+            Summary:
+        `);
 
         const summarizeChain = summarizePrompt.pipe(llm).pipe(new StringOutputParser());
 

@@ -6,13 +6,15 @@ export class VectorRetriever {
     private async searchInCollection(query: string, collectionName: string, k: number = 3): Promise<string[]> {
         const collection = getRAGCollection(collectionName);
         const embeddings = createRoundRobinEmbeddingModel();
-        
+
         const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
             collection: collection as any,
-            indexName: "vector_index", 
+            indexName: "vector_index",
             textKey: "text",
             embeddingKey: "embedding",
         });
+
+        console.log(vectorStore)
 
         const results = await vectorStore.similaritySearch(query, k);
         // Extract raw context from metadata, fallback to pageContent if metadata is missing
@@ -29,6 +31,7 @@ export class VectorRetriever {
             }
             if (q.destination === "disease") {
                 const results = await this.searchInCollection(q.query, "rag_diseases");
+                console.log(results)
                 rawContexts.push(...results);
             }
         }

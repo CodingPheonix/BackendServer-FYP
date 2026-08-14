@@ -11,19 +11,19 @@ export class ContextCompressor {
         const llm = createRoundRobinTextModel({ maxOutputTokens: 1024 });
 
         const compressPrompt = PromptTemplate.fromTemplate(`
-You are an expert agricultural assistant.
-You have been provided with several raw contexts retrieved from a database, and the user's original query.
-Your goal is to compress these raw contexts into shorter, precise, and high-value information that answers the original queries.
-Filter out noise and irrelevant data. 
+            You are an expert agricultural assistant.
+            You have been provided with several raw contexts retrieved from a database, and the user's original query.
+            Your goal is to compress these raw contexts into shorter, precise, and high-value information that answers the original queries.
+            Filter out noise and irrelevant data. 
 
-Original Queries:
-{queries}
+            Original Queries:
+            {queries}
 
-Raw Contexts:
-{contexts}
+            Raw Contexts:
+            {contexts}
 
-Compressed High-Value Context:
-`);
+            Compressed High-Value Context:
+        `);
 
         const compressChain = compressPrompt.pipe(llm).pipe(new StringOutputParser());
 

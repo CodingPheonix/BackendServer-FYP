@@ -23,6 +23,26 @@ export const createRoundRobinTextModel = (options?: any) => {
     });
 };
 
+// Wrapper to truncate embeddings to a specific dimension for MongoDB Atlas free tier (max 2048)
+// class TruncatedGoogleEmbeddings extends GoogleGenerativeAIEmbeddings {
+//     private targetDimension: number;
+
+//     constructor(fields: any, targetDimension: number = 768) {
+//         super(fields);
+//         this.targetDimension = targetDimension;
+//     }
+
+//     async embedQuery(text: string): Promise<number[]> {
+//         const result = await super.embedQuery(text);
+//         return result.slice(0, this.targetDimension);
+//     }
+
+//     async embedDocuments(texts: string[]): Promise<number[][]> {
+//         const results = await super.embedDocuments(texts);
+//         return results.map(r => r.slice(0, this.targetDimension));
+//     }
+// }
+
 export const createRoundRobinEmbeddingModel = (options?: any) => {
     const models = [
         process.env.GOOGLE_EMBEDDING_MODEL1
