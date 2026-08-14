@@ -60,6 +60,16 @@ export class Runtime implements LeafDiseaseRuntime {
     }
 
     /**
+     * Retrieves the identifiers for the current session.
+     */
+    public getIdentifiers() {
+        return {
+            userId: this.userId,
+            sessionId: this.sessionId
+        };
+    }
+
+    /**
      * Retrieves the plant details in O(1) time complexity.
      */
     public getPlantDetails() {

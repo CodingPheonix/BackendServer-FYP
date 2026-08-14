@@ -2,14 +2,19 @@ import { Socket } from "socket.io";
 import { GoogleGenAI, Modality } from "@google/genai";
 import 'dotenv/config';
 import { registerLiveApiEvents } from "../socket/liveApiSocket.js";
+import { geminiTools, handleToolCall } from "./tools.js";
 
 export class LiveAPIController {
     private ai: GoogleGenAI;
     private session: any;
     private socket: Socket;
+    private userId: string;
+    private sessionId: string;
 
     constructor(socket: Socket) {
         this.socket = socket;
+        this.userId = socket.handshake.query.userId as string || 'default-user';
+        this.sessionId = socket.handshake.query.sessionId as string || 'default-session';
         this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     }
 
@@ -26,6 +31,24 @@ export class LiveAPIController {
                     data: base64Data
                 }
             });
+        }
+    }
+
+    public sendTextInput(text: string) {
+        if (this.session) {
+            this.session.sendRealtimeInput({
+                text: text
+            });
+        }
+    }
+
+    public sendToolResponse(response: any) {
+        if (this.session) {
+            if (typeof this.session.sendToolResponse === 'function') {
+                this.session.sendToolResponse(response);
+            } else {
+                this.session.send({ toolResponse: response });
+            }
         }
     }
 
@@ -55,7 +78,8 @@ export class LiveAPIController {
                     contextWindowCompression: {
                         slidingWindow: {}
                     },
-                    responseModalities: [Modality.AUDIO]
+                    responseModalities: [Modality.AUDIO],
+                    tools: geminiTools
                 },
                 callbacks: {
                     onopen: function () {
@@ -102,6 +126,10 @@ export class LiveAPIController {
                 // Handle turnComplete to know when the model is done responding
                 if (message.serverContent.turnComplete) {
                 }
+            }
+
+            if (message.toolCall) {
+                handleToolCall(message.toolCall, this, this.userId, this.sessionId);
             }
 
             // Handle session management signals like GoAway
