@@ -101,13 +101,13 @@ export class LiveAPIController {
                 },
                 responseModalities: [Modality.AUDIO],
                 sessionResumption: { handle: previousSessionHandle },
-                automaticActivityDetection: {
-                    disabled: false, // default
-                    startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_LOW,
-                    endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
-                    prefixPaddingMs: 20,
-                    silenceDurationMs: 100,
-                },
+                // automaticActivityDetection: {
+                //     disabled: false, // default
+                //     startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_LOW,
+                //     endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
+                //     prefixPaddingMs: 20,
+                //     silenceDurationMs: 100,
+                // },
                 systemInstruction: {
                     parts: [{ text: systemPrompt }]
                 },
@@ -133,8 +133,28 @@ export class LiveAPIController {
                         this.socket.emit('error', 'Live API connection error');
                     },
                     onclose: (e: any) => {
-                        console.log('Live API connection closed', e?.reason || '');
-                        // If we are still connected to the frontend, auto-reconnect the Live API
+                        const reason = e?.reason || '';
+                        console.log('Live API connection closed', reason);
+                        
+                        // If the connection was closed because the session handle expired, reset it
+                        if (reason.toLowerCase().includes('expired') || reason.toLowerCase().includes('invalid')) {
+                            console.log("Session handle expired. Clearing handle and starting fresh...");
+                            Runtime.getInstance(this.userId, this.sessionId).then(async (runtime) => {
+                                runtime.conversation.handle = 'uninitialized';
+                                // Also clear from DB so next time it starts fresh
+                                await runtimeService.updateSession(this.userId, this.sessionId, {
+                                    conversation: { handle: 'uninitialized' }
+                                });
+                                
+                                if (this.socket.connected) {
+                                    console.log('Auto-reconnecting to Live API with a new session...');
+                                    this.initLiveClient();
+                                }
+                            }).catch(err => console.error("Failed to reset runtime handle:", err));
+                            return;
+                        }
+
+                        // For normal disconnects, auto-reconnect the Live API if frontend is still connected
                         if (this.socket.connected) {
                             console.log('Auto-reconnecting to Live API...');
                             this.initLiveClient();
@@ -153,9 +173,9 @@ export class LiveAPIController {
     private handleMessage(message: any) {
         try {
             if (message.serverContent) {
-                const content = message.serverContent.modelTurn;
-                if (content) {
-                    for (const part of content.parts) {
+                const content = message.serverContent;
+                if (content?.modelTurn?.parts) {
+                    for (const part of content.modelTurn.parts) {
                         if (part.inlineData && part.inlineData.data) {
                             // Audio from Gemini (24kHz PCM)
                             const audioBuffer = Buffer.from(part.inlineData.data, 'base64');
