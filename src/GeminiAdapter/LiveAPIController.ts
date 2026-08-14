@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { GoogleGenAI, Modality } from "@google/genai";
 import 'dotenv/config';
+import { registerLiveApiEvents } from "../socket/liveApiSocket.js";
 
 export class LiveAPIController {
     private ai: GoogleGenAI;
@@ -12,34 +13,34 @@ export class LiveAPIController {
         this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     }
 
+    public async startLiveSession() {
+        await this.initLiveClient();
+    }
+
+    public sendAudioInput(pcmData: ArrayBuffer) {
+        if (this.session) {
+            const base64Data = Buffer.from(pcmData).toString("base64");
+            this.session.sendRealtimeInput({
+                audio: {
+                    mimeType: "audio/pcm;rate=16000",
+                    data: base64Data
+                }
+            });
+        }
+    }
+
+    public handleDisconnect() {
+        console.log(`Live API Controller: Socket ${this.socket.id} disconnected.`);
+        if (this.session) {
+            // Note: SDK doesn't currently expose a close method natively on all streams,
+            // but usually you can close the generator or close the connection.
+            // (we will rely on garbage collection / standard disconnect mechanisms)
+        }
+    }
+
     async connect() {
         try {
-            // Wait for frontend to request starting the session
-            this.socket.on('start_live_session', async () => {
-                await this.initLiveClient();
-            });
-
-            this.socket.on('audio_input', (pcmData: ArrayBuffer) => {
-                if (this.session) {
-                    const base64Data = Buffer.from(pcmData).toString("base64");
-                    this.session.sendRealtimeInput({
-                        audio: {
-                            mimeType: "audio/pcm;rate=16000",
-                            data: base64Data
-                        }
-                    });
-                }
-            });
-
-            this.socket.on('disconnect', () => {
-                console.log(`Live API Controller: Socket ${this.socket.id} disconnected.`);
-                if (this.session) {
-                    // Note: SDK doesn't currently expose a close method natively on all streams,
-                    // but usually you can close the generator or close the connection.
-                    // (we will rely on garbage collection / standard disconnect mechanisms)
-                }
-            });
-
+            registerLiveApiEvents(this.socket, this);
         } catch (error) {
             console.error("Failed to setup Live API:", error);
             this.socket.emit('error', 'Failed to connect to AI');
