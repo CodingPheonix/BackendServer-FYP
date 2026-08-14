@@ -14,8 +14,6 @@ export class VectorRetriever {
             embeddingKey: "embedding",
         });
 
-        console.log(vectorStore)
-
         const results = await vectorStore.similaritySearch(query, k);
         // Extract raw context from metadata, fallback to pageContent if metadata is missing
         return results.map(doc => doc.metadata.rawContent || doc.pageContent);
@@ -31,7 +29,6 @@ export class VectorRetriever {
             }
             if (q.destination === "disease") {
                 const results = await this.searchInCollection(q.query, "rag_diseases");
-                console.log(results)
                 rawContexts.push(...results);
             }
         }
