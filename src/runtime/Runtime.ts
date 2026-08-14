@@ -60,6 +60,14 @@ export class Runtime implements LeafDiseaseRuntime {
     }
 
     /**
+     * Removes an active runtime session from memory.
+     */
+    public static removeInstance(userId: string, sessionId: string) {
+        const key = `${userId}:${sessionId}`;
+        Runtime.activeRuntimes.delete(key);
+    }
+
+    /**
      * Retrieves the identifiers for the current session.
      */
     public getIdentifiers() {

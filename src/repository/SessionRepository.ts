@@ -28,6 +28,10 @@ export class SessionRepository {
     async deleteById(id: string): Promise<ISession | null> {
         return await Session.findByIdAndDelete(id);
     }
+
+    async deleteBySessionAndUserId(userId: string, sessionId: string): Promise<ISession | null> {
+        return await Session.findOneAndDelete({ userId, sessionId });
+    }
 }
 
 export const sessionRepository = new SessionRepository();

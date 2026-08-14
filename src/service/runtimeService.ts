@@ -38,6 +38,13 @@ export class RuntimeService {
     async updateSession(userId: string, sessionId: string, data: Partial<ISession>): Promise<ISession | null> {
         return await sessionRepository.updateBySessionAndUserId(userId, sessionId, data);
     }
+
+    /**
+     * Deletes a session from the database.
+     */
+    async deleteSession(userId: string, sessionId: string): Promise<ISession | null> {
+        return await sessionRepository.deleteBySessionAndUserId(userId, sessionId);
+    }
 }
 
 export const runtimeService = new RuntimeService();
