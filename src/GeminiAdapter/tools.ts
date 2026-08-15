@@ -1,7 +1,7 @@
 import { retrievalService } from "../service/RetrievalService.js";
 import { Runtime } from "../runtime/Runtime.js";
 import { LiveAPIController } from "./LiveAPIController.js";
-
+import { chatService } from "../service/chatService.js";
 import { Type, Tool } from "@google/genai";
 
 // Define the tool declarations to be passed to Gemini
@@ -123,7 +123,13 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
                                 await retrievalService.processRetrieval(userId, sessionId, query);
 
                                 // Fetch updated runtime to ensure in-memory state is aligned
-                                await Runtime.getInstance(userId, sessionId);
+                                const updatedRuntime = await Runtime.getInstance(userId, sessionId);
+                                
+                                // Log the RAG context into the chat history for UI display
+                                const ragContext = updatedRuntime.getRagDetails()?.context || "No context found.";
+                                const ragMessageContent = `[RAG Retrieval Complete for "${query}"]\n\nContext:\n${ragContext}`;
+                                chatService.appendMessage(userId, sessionId, 'rag', ragMessageContent);
+                                controller.emitChatMessage('rag', ragMessageContent);
 
                                 // Trigger the text input to the model to act as a signal
                                 controller.sendTextInput(`[SYSTEM EVENT]: Background RAG retrieval is complete for the query "${query}". Please check the recent question asked in the conversation and the newly updated RAG context to provide your answer.`);

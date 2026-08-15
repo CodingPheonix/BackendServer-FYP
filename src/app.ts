@@ -7,6 +7,7 @@ import fertilizerRoutes from "./router/fertilizerRoutes.js";
 import ingestionRouter from "./router/ingestionRouter.js";
 import retrievalRouter from "./router/retrievalRouter.js";
 import sessionRouter from "./router/sessionRouter.js";
+import chatRouter from "./router/chatRouter.js";
 import { connectDatabase, connectRAGDatabase } from "./utils/database.js";
 import { LiveAPIController } from "./GeminiAdapter/LiveAPIController.js";
 
@@ -34,6 +35,7 @@ app.use("/api/fertilizers", fertilizerRoutes);
 app.use("/api/ingest", ingestionRouter);
 app.use("/api/retrieve", retrievalRouter);
 app.use("/api/sessions", sessionRouter);
+app.use("/api/chats", chatRouter);
 
 connectDatabase();
 connectRAGDatabase();

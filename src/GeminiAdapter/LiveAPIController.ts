@@ -6,6 +6,7 @@ import { geminiTools, handleToolCall } from "./tools.js";
 import { Runtime } from "../runtime/Runtime.js";
 import { runtimeService } from "../service/runtimeService.js";
 import { systemPrompt } from "./prompt.js";
+import { chatService } from "../service/chatService.js";
 
 export class LiveAPIController {
     private ai: GoogleGenAI;
@@ -42,6 +43,9 @@ export class LiveAPIController {
             this.session.sendRealtimeInput({
                 text: text
             });
+            // If the UI sends text explicitly, log it as user input
+            chatService.appendMessage(this.userId, this.sessionId, 'user', text);
+            this.emitChatMessage('user', text);
         }
     }
 
@@ -79,6 +83,10 @@ export class LiveAPIController {
 
     public emitTaskUpdate(task: string) {
         this.socket.emit('task_update', { category: "tool", task });
+    }
+
+    public emitChatMessage(sender: string, content: string) {
+        this.socket.emit('chat_message', { sender, content, timestamp: new Date() });
     }
 
     async connect() {
@@ -174,6 +182,13 @@ export class LiveAPIController {
         try {
             if (message.serverContent) {
                 const content = message.serverContent;
+                
+                // Capture transcribed user audio if available
+                if (content?.inputTranscription?.text) {
+                    chatService.appendMessage(this.userId, this.sessionId, 'user', content.inputTranscription.text);
+                    this.emitChatMessage('user', content.inputTranscription.text);
+                }
+
                 if (content?.modelTurn?.parts) {
                     for (const part of content.modelTurn.parts) {
                         if (part.inlineData && part.inlineData.data) {
@@ -183,6 +198,9 @@ export class LiveAPIController {
                         }
                         if (part.text) {
                             this.socket.emit('text_output', part.text);
+                            // Log AI text response
+                            chatService.appendMessage(this.userId, this.sessionId, 'ai', part.text);
+                            this.emitChatMessage('ai', part.text);
                         }
                     }
                 }

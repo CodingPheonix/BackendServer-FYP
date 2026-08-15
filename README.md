@@ -36,51 +36,61 @@ The server emits the following Socket.IO events to connected clients during a Li
 - **`audio_output`** (`ArrayBuffer`): Streams raw PCM audio data (24kHz) from the AI.
 - **`text_output`** (`string`): Streams text responses from the AI.
 - **`task_update`** (`{ category: string, task: string }`): Emits status updates when the AI executes background tools.
+- **`chat_message`** (`{ sender: string, content: string, timestamp: Date }`): Emitted in real-time when a message is logged to the chat pipeline (e.g., user inputs, AI responses, or RAG context).
 - **`interrupted`** (No parameters): Emitted if the AI's response is interrupted.
 - **`session_warning`** (`string`): Warns the client of impending session closure.
 - **`error`** (`string`): Emitted when a connection or processing error occurs.
+
+## Middlewares
+
+- **`authMiddleware.ts`**: Extracts `access_token` from request cookies and verifies it against an external auth server before allowing requests to proceed.
 
 ## API Routers
 
 The backend provides several REST endpoints for data management and session handling.
 
-### Fertilizer Router (\`/api/fertilizers\`)
+### Fertilizer Router (`/api/fertilizers`)
 Handles operations related to fertilizer data.
-- **\`POST /bulk\`**: Bulk insert fertilizer data.
-  - **Body**: \`Array<Partial<IFertilizer>>\` (A list of fertilizer objects)
-- **\`PATCH /:id/image\`**: Add or update an image for a specific fertilizer.
-  - **Body**: \`{ imageUrl: string }\`
-- **\`GET /\`**: Retrieve all fertilizers.
-- **\`GET /:id\`**: Retrieve a specific fertilizer by its ID.
+- **`POST /bulk`**: Bulk insert fertilizer data.
+  - **Body**: `Array<Partial<IFertilizer>>` (A list of fertilizer objects)
+- **`PATCH /:id/image`**: Add or update an image for a specific fertilizer.
+  - **Body**: `{ imageUrl: string }`
+- **`GET /`**: Retrieve all fertilizers.
+- **`GET /:id`**: Retrieve a specific fertilizer by its ID.
 
-### Ingestion Router (\`/api/ingest\`)
+### Ingestion Router (`/api/ingest`)
 Handles document uploads for the RAG knowledge base.
-- **\`POST /\`**: Upload and ingest a new document.
-  - **Body** (\`multipart/form-data\`):
-    - \`file\`: The document file to upload.
-    - \`type\`: \`string\` (Must be either \`"fertilizer"\` or \`"disease"\`).
+- **`POST /`**: Upload and ingest a new document.
+  - **Body** (`multipart/form-data`):
+    - `file`: The document file to upload.
+    - `type`: `string` (Must be either `"fertilizer"` or `"disease"`).
 
-### Retrieval Router (\`/api/retrieve\`)
+### Retrieval Router (`/api/retrieve`)
 Handles explicit semantic search queries against the RAG knowledge base.
-- **\`POST /\`**: Perform a semantic search.
+- **`POST /`**: Perform a semantic search.
   - **Body**: 
-    - \`query\`: \`string\` (The search query text).
-    - \`userId\`: \`string\` (The user's ID).
-    - \`sessionId\`: \`string\` (The session ID to store the retrieved context).
+    - `query`: `string` (The search query text).
+    - `userId`: `string` (The user's ID).
+    - `sessionId`: `string` (The session ID to store the retrieved context).
 
-### Session Router (\`/api/sessions\`)
+### Session Router (`/api/sessions`)
 Manages the lifecycle of user sessions and runtime context.
-- **\`POST /init\`**: Initialize or reload an existing session.
+- **`POST /init`**: Initialize or reload an existing session.
   - **Body**: 
-    - \`userId\`: \`string\`
-    - \`sessionId\`: \`string\`
-- **\`POST /start\`**: Start a new session with initial plant and disease context.
+    - `userId`: `string`
+    - `sessionId`: `string`
+- **`POST /start`**: Start a new session with initial plant and disease context.
   - **Body**: 
-    - \`userId\`: \`string\`
-    - \`sessionId\`: \`string\`
-    - \`plantName\`: \`string\` (Name of the plant being evaluated)
-    - \`diseaseName\`: \`string\` (Name of the detected disease)
-- **\`DELETE /\`**: Delete an existing session.
+    - `userId`: `string`
+    - `sessionId`: `string`
+    - `plantName`: `string` (Name of the plant being evaluated)
+    - `diseaseName`: `string` (Name of the detected disease)
+- **`DELETE /`**: Delete an existing session.
   - **Body**:
-    - \`userId\`: \`string\`
-    - \`sessionId\`: \`string\`
+    - `userId`: `string`
+    - `sessionId`: `string`
+
+### Chat Router (`/api/chats`)
+Manages the chat history pipeline for user sessions.
+- **`GET /:userId/:sessionId`**: Retrieve the full chronological chat history for a session.
+- **`DELETE /:userId/:sessionId`**: Clear the chat history for a session.
