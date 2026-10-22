@@ -13,8 +13,10 @@ import { LiveAPIController } from "./GeminiAdapter/LiveAPIController.js";
 
 const app = express();
 
+const allowedOrigins = (process.env.FRONTEND_URL || "").split(',').map(url => url.trim());
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL as string
+    origin: allowedOrigins
 }))
 app.use(express.json());
 
@@ -44,7 +46,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.FRONTEND_URL as string
+        origin: allowedOrigins
     }
 });
 

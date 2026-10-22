@@ -19,7 +19,7 @@ export class LiveAPIController {
         this.socket = socket;
         this.userId = socket.handshake.query.userId as string || 'default-user';
         this.sessionId = socket.handshake.query.sessionId as string || 'default-session';
-        this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        this.ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
     }
 
     public async startLiveSession() {
