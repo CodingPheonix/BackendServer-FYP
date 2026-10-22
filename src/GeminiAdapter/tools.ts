@@ -61,6 +61,47 @@ export const geminiTools: Tool[] = [
                     },
                     required: ["query"]
                 }
+            },
+            {
+                name: "fetch_past_sessions",
+                description: "Fetches past consultation sessions, previous suggestions, and dates for this plant and disease.",
+                parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                        userId: { type: Type.STRING },
+                        sessionId: { type: Type.STRING }
+                    }
+                }
+            },
+            {
+                name: "save_session_suggestions",
+                description: "Saves 3-5 concrete immediate aid suggestions (including fertilizer names, 2-day steps) for this session to the database.",
+                parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                        userId: { type: Type.STRING },
+                        sessionId: { type: Type.STRING },
+                        suggestions: {
+                            type: Type.ARRAY,
+                            items: { type: Type.STRING },
+                            description: "3 to 5 clear, actionable immediate-aid steps and fertilizer suggestions for the next 2 days."
+                        }
+                    },
+                    required: ["suggestions"]
+                }
+            },
+            {
+                name: "close_consultation_session",
+                description: "Closes the current session after all advice and user questions are resolved, saying goodbye and returning the user to the sessions dashboard.",
+                parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                        farewellMessage: {
+                            type: Type.STRING,
+                            description: "Polite farewell message like 'Thank you for your session. You can follow up in a 1-week interval. Take care!'"
+                        }
+                    }
+                }
             }
         ]
     }
@@ -124,7 +165,7 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
 
                                 // Fetch updated runtime to ensure in-memory state is aligned
                                 const updatedRuntime = await Runtime.getInstance(userId, sessionId);
-                                
+
                                 // Log the RAG context into the chat history for UI display
                                 const ragContext = updatedRuntime.getRagDetails()?.context || "No context found.";
                                 const ragMessageContent = `[RAG Retrieval Complete for "${query}"]\n\nContext:\n${ragContext}`;
@@ -139,6 +180,40 @@ export async function handleToolCall(toolCall: any, controller: LiveAPIControlle
                             }
                         })();
                     }
+                    break;
+                }
+                case "fetch_past_sessions": {
+                    const runtime = await Runtime.getInstance(userId, sessionId);
+                    const past = runtime.getPastSessions();
+                    result = {
+                        hasPastSessions: past.length > 0,
+                        pastSessionsCount: past.length,
+                        pastSessions: past
+                    };
+                    break;
+                }
+                case "save_session_suggestions": {
+                    const { suggestions } = args;
+                    if (Array.isArray(suggestions) && suggestions.length > 0) {
+                        const { runtimeService } = await import('../service/runtimeService.js');
+                        await runtimeService.addSessionSuggestions(userId, sessionId, suggestions);
+
+                        const runtime = await Runtime.getInstance(userId, sessionId);
+                        runtime.addSuggestions(suggestions);
+
+                        result = {
+                            status: "success",
+                            message: `${suggestions.length} suggestions recorded in session history.`
+                        };
+                    } else {
+                        result = { error: "suggestions must be a non-empty array of strings" };
+                    }
+                    break;
+                }
+                case "close_consultation_session": {
+                    const farewell = args?.farewellMessage || "Thank you for consulting PhytoScan. You can check back in a 1-week interval. Take care!";
+                    controller.endSession(farewell);
+                    result = { status: "Session closed and user redirected." };
                     break;
                 }
                 default:

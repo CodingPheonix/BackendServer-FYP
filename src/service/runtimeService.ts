@@ -15,12 +15,16 @@ export class RuntimeService {
      * Starts a new session by resolving crop and disease names to their IDs.
      */
     async startSessionWithNames(userId: string, sessionId: string, plantName: string, diseaseName?: string): Promise<ISession> {
-        const crop = await Crop.findOne({ name: plantName });
+        const crop = await Crop.findOne({ name: { $regex: new RegExp(`^${plantName.trim()}$`, 'i') } });
         const cropId = crop ? crop._id.toString() : 'unknown';
         
         let diseaseId;
         if (diseaseName) {
-            const disease = await Disease.findOne({ name: diseaseName });
+            const query: any = { name: { $regex: new RegExp(`^${diseaseName.trim()}$`, 'i') } };
+            if (crop) {
+                query.cropId = crop._id;
+            }
+            const disease = await Disease.findOne(query);
             if (disease) {
                 diseaseId = disease._id.toString();
             }
@@ -33,10 +37,19 @@ export class RuntimeService {
                 cropName: plantName,
                 ...(diseaseId ? { diseaseId } : {}),
                 ...(diseaseName ? { diseaseName } : {})
-            }
+            },
+            pastSessions: []
         };
 
         return await this.startSession(userId, sessionId, sessionInitialData);
+    }
+
+    async getUserSessions(userId: string): Promise<ISession[]> {
+        return await sessionRepository.findByUserId(userId);
+    }
+
+    async addSessionSuggestions(userId: string, sessionId: string, suggestions: string[]): Promise<ISession | null> {
+        return await sessionRepository.addPastSession(userId, sessionId, suggestions);
     }
 
     /**

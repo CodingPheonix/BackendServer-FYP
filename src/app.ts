@@ -8,16 +8,27 @@ import ingestionRouter from "./router/ingestionRouter.js";
 import retrievalRouter from "./router/retrievalRouter.js";
 import sessionRouter from "./router/sessionRouter.js";
 import chatRouter from "./router/chatRouter.js";
+import liveTokenRouter from "./router/liveTokenRouter.js";
+import liveToolsRouter from "./router/liveToolsRouter.js";
+import plantDiseaseRouter from "./router/plantDiseaseRouter.js";
 import { connectDatabase, connectRAGDatabase } from "./utils/database.js";
 import { LiveAPIController } from "./GeminiAdapter/LiveAPIController.js";
+
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./utils/auth.js";
 
 const app = express();
 
 const allowedOrigins = (process.env.FRONTEND_URL || "").split(',').map(url => url.trim());
 
 app.use(cors({
-    origin: allowedOrigins
+    origin: allowedOrigins,
+    credentials: true
 }))
+
+// Mount Better Auth handler before express.json()
+app.all("/api/auth/{*path}", toNodeHandler(auth));
+
 app.use(express.json());
 
 // Gracefully handle malformed JSON requests
@@ -38,6 +49,9 @@ app.use("/api/ingest", ingestionRouter);
 app.use("/api/retrieve", retrievalRouter);
 app.use("/api/sessions", sessionRouter);
 app.use("/api/chats", chatRouter);
+app.use("/api/live", liveTokenRouter);
+app.use("/api/live/tools", liveToolsRouter);
+app.use("/api/plant-diseases", plantDiseaseRouter);
 
 connectDatabase();
 connectRAGDatabase();

@@ -55,6 +55,34 @@ export class IngestionService {
             }
         }
     }
+
+    async ingestRawTexts(
+        sections: { title: string; content: string }[],
+        type: "fertilizer" | "disease"
+    ): Promise<void> {
+        const documentsToIngest: Document[] = [];
+
+        for (const [index, section] of sections.entries()) {
+            console.log(`Summarizing and preparing section ${index + 1}/${sections.length}: ${section.title}...`);
+            const summary = await this.summarizer.summarizePage(section.content);
+
+            const enrichedMetadata = {
+                title: section.title,
+                rawContent: section.content,
+                docType: type,
+                isSummary: true
+            };
+
+            const summaryDoc = new Document({
+                pageContent: summary,
+                metadata: enrichedMetadata,
+            });
+
+            documentsToIngest.push(summaryDoc);
+        }
+
+        await this.vectorStoreManager.storeDocuments(documentsToIngest, type);
+    }
 }
 
 export const ingestionService = new IngestionService();

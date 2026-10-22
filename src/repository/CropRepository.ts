@@ -15,6 +15,10 @@ export class CropRepository {
     return await Crop.findById(id);
   }
 
+  async findByName(name: string): Promise<ICrop | null> {
+    return await Crop.findOne({ name: { $regex: new RegExp(`^${name.trim()}$`, 'i') } });
+  }
+
   async findAll(): Promise<ICrop[]> {
     return await Crop.find();
   }

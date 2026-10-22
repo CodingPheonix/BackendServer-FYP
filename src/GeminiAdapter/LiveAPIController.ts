@@ -89,6 +89,13 @@ export class LiveAPIController {
         this.socket.emit('chat_message', { sender, content, timestamp: new Date() });
     }
 
+    public endSession(farewellMessage?: string) {
+        this.socket.emit('session_ended', {
+            message: farewellMessage || 'Session concluded. You may consult again in one week.',
+            redirectUrl: '/plantscan'
+        });
+    }
+
     async connect() {
         try {
             registerLiveApiEvents(this.socket, this);
