@@ -4,8 +4,8 @@ export interface LeafDiseaseRuntime {
   sessionId: string;
 
   // Live API conversation
-  conversation: {
-    handle: string;
+  conversation?: {
+    handle?: string;
   };
 
   // Plant / disease context

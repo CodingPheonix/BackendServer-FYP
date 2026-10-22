@@ -23,6 +23,13 @@ export class DiseaseRepository {
     return await Disease.find({ cropId });
   }
 
+  async findByNameAndCropId(name: string, cropId: string | mongoose.Types.ObjectId): Promise<IDisease | null> {
+    return await Disease.findOne({
+      cropId,
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+    });
+  }
+
   async updateById(id: string, data: mongoose.UpdateQuery<IDisease>): Promise<IDisease | null> {
     return await Disease.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }

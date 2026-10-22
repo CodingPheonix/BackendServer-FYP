@@ -7,9 +7,10 @@ export class Runtime implements LeafDiseaseRuntime {
 
     public userId!: string;
     public sessionId!: string;
-    public conversation!: { handle: string };
+    public conversation!: { handle?: string };
     public plant!: { cropId: string; cropName: string; diseaseId?: string; diseaseName?: string; confidence?: number };
     public rag?: { queries: string[]; context: string; retrievedAt: Date };
+    public pastSessions: { date: Date; suggestions: string[] }[] = [];
     public createdAt!: Date;
     public lastActivityAt!: Date;
 
@@ -25,6 +26,7 @@ export class Runtime implements LeafDiseaseRuntime {
         // Initialize default nested structures to prevent undefined errors
         this.conversation = { handle: '' };
         this.plant = { cropId: '', cropName: '' };
+        this.pastSessions = [];
     }
 
     /**
@@ -47,9 +49,10 @@ export class Runtime implements LeafDiseaseRuntime {
 
         if (dbSession) {
             // Restore state from database
-            runtime.conversation = dbSession.conversation;
+            runtime.conversation = dbSession.conversation || { handle: '' };
             runtime.plant = dbSession.plant;
             runtime.rag = dbSession.rag;
+            runtime.pastSessions = dbSession.pastSessions || [];
             runtime.createdAt = dbSession.createdAt;
             runtime.lastActivityAt = dbSession.lastActivityAt;
         }
@@ -57,6 +60,24 @@ export class Runtime implements LeafDiseaseRuntime {
         // Immediately bring the session into the runtime memory
         Runtime.activeRuntimes.set(key, runtime);
         return runtime;
+    }
+
+    /**
+     * Retrieves past session suggestions.
+     */
+    public getPastSessions() {
+        return this.pastSessions || [];
+    }
+
+    /**
+     * Appends new suggestions to the active runtime in memory.
+     */
+    public addSuggestions(suggestions: string[]) {
+        this.pastSessions.push({
+            date: new Date(),
+            suggestions
+        });
+        this.updateActivity();
     }
 
     /**

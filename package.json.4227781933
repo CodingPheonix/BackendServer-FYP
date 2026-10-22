@@ -1,0 +1,54 @@
+{
+  "name": "backendserver-fyp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodingPheonix/BackendServer-FYP.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/CodingPheonix/BackendServer-FYP/issues"
+  },
+  "homepage": "https://github.com/CodingPheonix/BackendServer-FYP#readme",
+  "dependencies": {
+    "@better-auth/mongo-adapter": "^1.7.12",
+    "@google/genai": "^2.20.0",
+    "@langchain/community": "^1.1.29",
+    "@langchain/core": "^1.2.5",
+    "@langchain/google-genai": "^2.2.0",
+    "@langchain/mongodb": "^1.3.0",
+    "better-auth": "^1.7.12",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "langchain": "^1.5.5",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.9.1",
+    "multer": "^2.2.0",
+    "pdf-parse": "^2.4.5",
+    "socket.io": "^4.8.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.1.2",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.10",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
